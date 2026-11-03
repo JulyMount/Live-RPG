@@ -1,1 +1,13 @@
-{"nome":"Medieval Fantasia (D&D)","classes":["guerreiro","atirador","curandeiro","mago"],"bosses":["guardiao-de-mana"]}
+{
+  "nome": "Medieval Fantasia (D&D)",
+  "classes": [
+    "guerreiro",
+    "atirador",
+    "curandeiro",
+    "mago"
+  ],
+  "bosses": [
+    "guardiao-de-mana",
+    "dragao-de-cinzas"
+  ]
+}

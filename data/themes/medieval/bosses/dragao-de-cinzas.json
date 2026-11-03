@@ -1,0 +1,19 @@
+{
+  "nome": "Dragão de Cinzas",
+  "hp": 80,
+  "def": 14,
+  "atk": 6,
+  "acoes": [
+    {
+      "nome": "Arranhão Perfurante",
+      "tipo": "unico",
+      "dado": "1d8+3",
+      "peso": 100
+    }
+  ],
+  "acaoMestre": {
+    "nome": "Chama Rápida",
+    "tipo": "unico",
+    "dado": "1d20+2"
+  }
+}
