@@ -1,0 +1,33 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>RPG Live - OBS</title>
+<style>
+/* Fonte Navegador no OBS: 1920x1080, fundo transparente. Coloque seus sprites em OBS/assets/ e troque as bordas abaixo por url(assets/...) */
+:root{--madeira:#4a3220;--ouro:#d9b36a;--azul:#071a33;--perg:#e7d3a3}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:transparent;font-family:Georgia,serif;color:var(--perg)}
+.box{background:var(--azul);border:8px solid var(--madeira);outline:2px solid var(--ouro);border-radius:6px;box-shadow:0 0 18px #000a}
+#boss{position:absolute;left:560px;top:80px;width:800px;text-align:center;transition:transform .15s}
+#boss.hit{animation:hit .4s}@keyframes hit{25%{transform:translateX(-14px)}75%{transform:translateX(14px)}}
+#boss .nome{font-size:44px;color:var(--ouro);padding:10px}#hpb{height:34px;margin:0 14px 14px;background:#000;border:2px solid var(--ouro)}
+#hpb i{display:block;height:100%;background:linear-gradient(#ff6a3d,#b32d12);transition:width .6s}#def{padding-bottom:10px;font-size:24px}
+#cards{position:absolute;right:30px;bottom:30px;display:flex;gap:14px}
+.card{width:190px;padding:8px;text-align:center}.card.on{outline:4px solid #ffd25e}.card.x{opacity:.35}.card img{width:100%;height:150px;object-fit:cover;background:#0b2a52}
+.card b{display:block;font-size:20px}.card small{display:block;font-size:15px}.mini{height:8px;background:#000;margin-top:4px}.mini i{display:block;height:100%;background:#3ecf6a}
+#log{position:absolute;left:30px;bottom:30px;width:520px;height:300px;padding:10px;font-size:18px;overflow:hidden}#log h3{margin:0 0 6px;color:var(--ouro)}
+#popup{position:absolute;left:0;right:0;top:470px;text-align:center;font-size:96px;font-weight:bold;color:#fff;text-shadow:0 0 12px #000,4px 4px 0 #b32d12;opacity:0;pointer-events:none}
+#popup.show{animation:pop 2s}@keyframes pop{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.1)}80%{opacity:1}100%{opacity:0;transform:translateY(-40px)}}
+#lobby{position:absolute;left:560px;top:420px;width:800px;padding:30px;text-align:center;font-size:56px;display:none}#lobby small{display:block;font-size:28px;margin-top:10px}
+</style>
+<div id=lobby class=box>Digite !participar<small id=n></small></div>
+<div id=boss class="box" style="display:none"><div class=nome id=bn></div><div id=hpb><i id=hp></i></div><div id=def></div></div>
+<div id=cards></div><div id=log class=box style="display:none"><h3>Log de combate</h3><div id=ll></div></div><div id=popup></div>
+<script>
+const WS=new URLSearchParams(location.search).get('ws')||('ws://'+(location.host||'localhost:3000'));let lastPop=0,lastHp=null;
+function connect(){const ws=new WebSocket(WS);ws.onmessage=e=>draw(JSON.parse(e.data).state);ws.onclose=()=>setTimeout(connect,2000)}connect();
+function draw(s){const b=s.boss,$=id=>document.getElementById(id);
+$('lobby').style.display=s.fase=='lobby'?'block':'none';$('n').textContent=s.cand.length+' candidato(s) na lista';
+$('boss').style.display=b?'block':'none';$('log').style.display=b?'block':'none';
+if(b){$('bn').textContent=b.nome;$('hp').style.width=b.hp/b.max*100+'%';$('def').textContent='DEF '+b.def+'  |  HP '+b.hp+'/'+b.max;
+ if(lastHp!==null&&b.hp<lastHp){$('boss').classList.remove('hit');void $('boss').offsetWidth;$('boss').classList.add('hit')}lastHp=b.hp}else lastHp=null;
+$('cards').innerHTML=s.pl.map(p=>`<div class="card box ${p.nome==s.cur?'on':''} ${p.vivo?'':'x'}"><img alt="" src="${p.foto||''}" onerror="this.style.visibility='hidden'"><b>${p.nome}</b><small>${p.classe}</small><small>HP ${p.hp}/${p.max} · DEF ${p.def+p.bonus}</small><div class=mini><i style="width:${p.hp/p.max*100}%"></i></div></div>`).join('');
+$('ll').innerHTML=s.log.slice(0,8).map(l=>`<div>${l}</div>`).join('');
+if(s.popup&&s.popup.id!==lastPop){lastPop=s.popup.id;const p=$('popup');p.textContent=s.popup.t;p.classList.remove('show');void p.offsetWidth;p.classList.add('show')}}
+</script></html>

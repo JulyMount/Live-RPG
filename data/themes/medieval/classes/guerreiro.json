@@ -1,0 +1,3 @@
+{"nome":"Guerreiro","papel":"Tank e Defensor","hp":40,"def":14,"atk":2,
+"acoes":[{"nome":"Golpe de Escudo","tipo":"ataque","dado":"1d8+2"},{"nome":"Provocar","tipo":"taunt"},{"nome":"Postura Inabalável","tipo":"buff","valor":3}],
+"especiais":[{"nome":"Golpe Devastador","tipo":"ataque","dado":"2d10+4"},{"nome":"Escudo Guardião","tipo":"efeito"},{"nome":"Brado de Guerra","tipo":"efeito"}]}

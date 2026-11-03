@@ -1,0 +1,4 @@
+{"nome":"Guardião de Mana","tema":"Rúnico / Arcano","hp":120,"def":14,"atk":4,
+"acoes":[{"nome":"Pancada Rúnica","tipo":"unico","dado":"1d10+2","peso":65},{"nome":"Explosão de Mana","tipo":"aoe","dado":"1d6","peso":20},{"nome":"Absorção Rúnica","tipo":"efeito","peso":15}],
+"acaoMestre":{"nome":"Golpe de Misericórdia","tipo":"unico","dado":"2d10"},
+"fase2":{"hpPct":0.5,"def":-2,"dano":3}}

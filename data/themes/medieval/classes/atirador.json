@@ -1,0 +1,3 @@
+{"nome":"Atirador","papel":"Dano à distância","hp":30,"def":12,"atk":4,
+"acoes":[{"nome":"Disparo Rápido","tipo":"ataque","dado":"1d10+3"},{"nome":"Mirar","tipo":"efeito"},{"nome":"Inspecionar Campo","tipo":"efeito"}],
+"especiais":[{"nome":"Chuva de Flechas","tipo":"ataque","dado":"3d6"},{"nome":"Tiro Perfurante","tipo":"ataque","dado":"1d10+3"},{"nome":"Armadilha de Mana","tipo":"efeito"}]}

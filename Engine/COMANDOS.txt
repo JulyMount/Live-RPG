@@ -1,0 +1,29 @@
+COMANDOS DO RPG LIVE  (rode no terminal do VS Code)
+Pré-requisitos: Node.js 18+ (https://nodejs.org) e Git.
+
+=== 1) ENGINE (editor de temáticas, bosses, classes, mecânicas) ===
+cd Engine
+npm install
+npm start
+-> abra http://localhost:5173
+
+=== 2) PAINEL DO MESTRE (+ servidor do overlay) ===
+cd Painel
+npm install
+npm start
+-> Painel:  http://localhost:3000
+-> OBS:     adicione uma fonte "Navegador" com URL http://localhost:3000/obs/  (1920x1080)
+
+=== 3) REPOSITÓRIO GITHUB (dados dos bosses, classes etc.) ===
+Na pasta raiz (rpglive):
+git init
+git add -A
+git commit -m "primeira versão"
+git branch -M main
+git remote add origin https://github.com/SEU_USUARIO/SEU_REPO.git
+git push -u origin main
+
+Depois, em config.json, preencha:
+"githubRaw": "https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPO/main/data"
+(vazio = usa a pasta local data/). Reinicie o Painel após mudar.
+O botão "Subir para LIVE" da Engine faz add + commit + push do repositório.

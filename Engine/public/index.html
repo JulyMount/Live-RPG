@@ -1,0 +1,46 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>RPG Live Engine</title>
+<style>
+*{box-sizing:border-box}body{margin:0;height:100vh;display:grid;grid-template-columns:260px 1fr;font:13px system-ui;background:#1e1e1e;color:#ddd}
+#side{background:#181d27;border-right:1px solid #3a2f20;overflow:auto;padding:8px}#side h4{margin:12px 0 4px;color:#d9b36a;font:600 13px Georgia,serif}
+#side a{display:block;padding:3px 8px;cursor:pointer;border-radius:3px}#side a:hover,#side a.on{background:#2b3c57}
+#main{display:grid;grid-template-rows:42px 1fr;min-width:0}#bar{display:flex;gap:8px;align-items:center;padding:0 10px;background:#13243d}
+button{background:#2b4a75;color:#fff;border:0;border-radius:4px;padding:6px 12px;cursor:pointer}button:hover{background:#3a62a0}#msg{margin-left:auto;color:#d9b36a}
+#split{display:grid;grid-template-columns:42% 58%;min-height:0}#vis{overflow:auto;padding:12px;background:#10192a}#ed{min-height:0}
+.row{display:flex;align-items:center;gap:8px;margin:4px 0;flex-wrap:wrap}.row>label{width:110px;color:#9fb4d6}.nest{flex-basis:100%;margin-left:14px;padding-left:10px;border-left:2px solid #3a2f20}
+input[type=text],input[type=number]{background:#1d2c47;color:#fff;border:1px solid #3a4f73;padding:4px 6px;border-radius:3px}input[type=text]{flex:1;min-width:120px}input[type=number]{width:80px}input[type=range]{flex:1;min-width:80px}
+</style>
+<div id=side></div>
+<div id=main><div id=bar><b id=nome>Selecione um arquivo</b><button onclick=novo()>+ Novo</button><button onclick=salvar()>Salvar</button><button onclick=publicar()>Subir para LIVE</button><span id=msg></span></div>
+<div id=split><div id=vis>Escolha uma classe, boss ou mecânica na lista.</div><div id=ed></div></div></div>
+<script src="/monaco/vs/loader.js"></script>
+<script>
+let ed, cur, obj, quiet = false; const $ = id => document.getElementById(id), say = t => $('msg').textContent = t;
+const api = async (u, m = 'GET', b) => { const r = await fetch(u, { method: m, headers: { 'Content-Type': 'application/json' }, body: b && JSON.stringify(b) }); const j = await r.json(); if (!r.ok) throw Error(j.erro); return j };
+require.config({ paths: { vs: '/monaco/vs' } });
+require(['vs/editor/editor.main'], () => { ed = monaco.editor.create($('ed'), { language: 'json', theme: 'vs-dark', automaticLayout: true, minimap: { enabled: false }, value: '' });
+  ed.onDidChangeModelContent(() => { if (quiet) return; try { obj = JSON.parse(ed.getValue()); drawForm() } catch (e) { } }); tree() });
+async function tree() { const f = await api('/api/tree'), g = {};
+  f.forEach(p => { const k = p.startsWith('mecanicas') ? 'Mecânicas' : p.split('/')[1] + ' / ' + p.split('/')[2]; (g[k] = g[k] || []).push(p) });
+  $('side').innerHTML = Object.entries(g).map(([k, a]) => `<h4>${k}</h4>` + a.map(p => `<a data-p="${p}" class="${p == cur ? 'on' : ''}" onclick="abrir('${p}')">${p.split('/').pop().replace('.json', '')}</a>`).join('')).join('') }
+async function abrir(p) { const { content } = await api('/api/file?p=' + encodeURIComponent(p)); cur = p; $('nome').textContent = p; set(content); tree() }
+function set(txt) { quiet = true; ed.setValue(txt); quiet = false; obj = JSON.parse(txt); drawForm() }
+function sync() { quiet = true; ed.setValue(JSON.stringify(obj, null, 2)); quiet = false }
+function inp(t, v) { const i = document.createElement('input'); i.type = t; i.value = v; return i }
+function form(o, par) { for (const k in o) { const v = o[k], row = document.createElement('div'), l = document.createElement('label'); row.className = 'row'; l.textContent = k; row.append(l);
+  if (typeof v == 'number') { const n = inp('number', v), s = inp('range', v); s.min = 0; s.max = Math.max(100, Math.ceil(v * 2)); s.step = v % 1 ? .05 : 1; n.step = s.step;
+    n.oninput = () => { o[k] = +n.value; s.value = n.value; sync() }; s.oninput = () => { o[k] = +s.value; n.value = s.value; sync() }; row.append(n, s) }
+  else if (typeof v == 'boolean') { const c = inp('checkbox', ''); c.checked = v; c.onchange = () => { o[k] = c.checked; sync() }; row.append(c) }
+  else if (typeof v == 'string') { const t = inp('text', v); t.oninput = () => { o[k] = t.value; sync() }; row.append(t) }
+  else if (v && typeof v == 'object') { const d = document.createElement('div'); d.className = 'nest'; form(v, d); row.append(d) }
+  par.append(row) } }
+function drawForm() { const v = $('vis'); v.innerHTML = ''; form(obj, v) }
+async function salvar() { if (!cur) return; try { await api('/api/file', 'PUT', { p: cur, content: ed.getValue() }); say('Salvo (local).') } catch (e) { say('Erro: ' + e.message) } }
+const T = { classes: { nome: 'Nova Classe', papel: '', hp: 30, def: 12, atk: 2, acoes: [{ nome: 'Ataque', tipo: 'ataque', dado: '1d8' }, { nome: 'Ação 2', tipo: 'efeito' }, { nome: 'Ação 3', tipo: 'efeito' }], especiais: [{ nome: 'Especial', tipo: 'ataque', dado: '2d8' }] },
+  bosses: { nome: 'Novo Boss', hp: 80, def: 12, atk: 4, acoes: [{ nome: 'Ataque', tipo: 'unico', dado: '1d8+2', peso: 100 }], acaoMestre: { nome: 'Golpe do Mestre', tipo: 'unico', dado: '2d8' } },
+  mecanicas: { nome: 'Nova Mecânica', descricao: '', parametros: {} } };
+async function novo() { const x = prompt('Tipo e nome. Exemplos:\nmedieval/bosses/dragao-de-cinzas\nmedieval/classes/paladino\nmecanicas/veneno'); if (!x) return;
+  const p = x.replace(/^\/|\.json$/g, ''), tipo = p.startsWith('mecanicas') ? 'mecanicas' : p.split('/')[1];
+  if (!T[tipo]) return say('Use classes, bosses ou mecanicas.'); const full = p.startsWith('mecanicas') ? p + '.json' : 'themes/' + p + '.json';
+  try { await api('/api/new', 'POST', { p: full, content: JSON.stringify(T[tipo], null, 2) }); await abrir(full) } catch (e) { say('Erro: ' + e.message) } }
+async function publicar() { await salvar(); say('Enviando...'); try { const r = await api('/api/publish', 'POST', { msg: prompt('Mensagem do commit:', 'Atualização pela Engine') }); say('Publicado.'); console.log(r.saida) } catch (e) { say('Erro: ' + e.message) } }
+</script></html>

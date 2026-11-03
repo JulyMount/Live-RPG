@@ -1,0 +1,26 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Painel do Mestre</title>
+<style>
+body{margin:0;font:14px system-ui;background:#0c1626;color:#e8dcc0;display:grid;grid-template-columns:340px 1fr 380px;gap:14px;padding:14px;height:100vh;box-sizing:border-box}
+section{background:#13243d;border:1px solid #5a4126;border-radius:6px;padding:12px;overflow:auto}
+h2{margin:0 0 8px;font:600 15px Georgia,serif;color:#d9b36a}button,select,input{background:#223a5c;color:inherit;border:1px solid #5a4126;border-radius:4px;padding:6px 10px;margin:2px}
+button:hover{background:#2f4f7d;cursor:pointer}.bar{height:12px;background:#0a1220;border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:#c2452d}
+.p{margin:6px 0;padding:6px;border-left:3px solid #5a4126}.p.on{border-color:#ffd25e;background:#1b3252}.p.x{opacity:.4}.log div{padding:2px 0;border-bottom:1px solid #1d3354}
+</style>
+<section><h2>Sessão</h2><div id=fase></div>
+<button onclick="send({cmd:'abrir'})">Abrir lobby</button> <select id=bs></select>
+<button onclick="send({cmd:'start',boss:bs.value})">Sortear e iniciar</button> <button onclick="send({cmd:'reset'})">Reset</button>
+<h2 style="margin-top:14px">Modo do Boss</h2><button id=modo onclick="send({cmd:'modo',modo:S.modo=='IA'?'Controle':'IA'})"></button>
+<div id=bossAc></div><h2 style="margin-top:14px">Simular chat</h2><input id=u placeholder=usuário size=10><input id=t placeholder="!participar / !1" size=12>
+<button onclick="send({cmd:'chat',user:u.value,text:t.value});t.value=''">Enviar</button><div id=cand style="margin-top:8px"></div></section>
+<section><h2>Arena</h2><div id=boss></div><div id=pl></div></section>
+<section class=log><h2>Log detalhado</h2><div id=log></div></section>
+<script>
+let S={},ws=new WebSocket('ws://'+location.host);const send=o=>ws.send(JSON.stringify(o));
+ws.onmessage=e=>{const m=JSON.parse(e.data);S=m.state;bs.innerHTML=m.bosses.map(b=>`<option>${b}</option>`).join('');render()};
+function render(){const s=S,b=s.boss;fase.textContent='Fase: '+s.fase+' | Poções: '+s.pocoes+' | Vez: '+(s.cur||'-');
+modo.textContent='Modo: '+s.modo+' (alternar)';cand.textContent='Candidatos ('+s.cand.length+'): '+s.cand.join(', ');
+bossAc.innerHTML=b&&s.modo=='Controle'&&s.cur=='boss'?[...b.acoes,{...b.acaoMestre,nome:'★ '+b.acaoMestre.nome}].map((a,i)=>`<button onclick="send({cmd:'boss',i:${i==b.acoes.length?"'mestre'":i}})">${a.nome}</button>`).join(''):'';
+boss.innerHTML=b?`<b>${b.nome}</b> HP ${b.hp}/${b.max} | DEF ${b.def}<div class=bar><i style="width:${b.hp/b.max*100}%"></i></div>`:'';
+pl.innerHTML=s.pl.map(p=>`<div class="p ${p.nome==s.cur?'on':''} ${p.vivo?'':'x'}"><b>${p.nome}</b> — ${p.classe} (ini ${p.ini})<br>HP ${p.hp}/${p.max} · DEF ${p.def}${p.bonus?'+'+p.bonus:''} · ATK +${p.atk}<br>Ações: ${p.acoes.map((a,i)=>'!'+(i+1)+' '+a.nome).join(' · ')} · !4 ${p.especial.nome}</div>`).join('');
+log.innerHTML=s.log.map(l=>`<div>${l}</div>`).join('')}
+</script></html>

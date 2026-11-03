@@ -1,0 +1,3 @@
+{"nome":"Mago","papel":"Dano arcano e controle","hp":22,"def":10,"atk":5,
+"acoes":[{"nome":"Seta Arcana","tipo":"ataque","dado":"1d12+2"},{"nome":"Escudo de Mana","tipo":"buff","valor":2},{"nome":"Drenagem Menor","tipo":"ataque","dado":"1d6"}],
+"especiais":[{"nome":"Bola de Fogo","tipo":"ataque","dado":"2d10+4"},{"nome":"Congelamento Temporal","tipo":"efeito"},{"nome":"Sifão de Alma","tipo":"ataque","dado":"1d10"}]}
